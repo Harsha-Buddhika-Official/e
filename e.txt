@@ -1,0 +1,367 @@
+1. DDA Line Drawing Algorithm
+
+
+import java.awt.*;
+import javax.swing.*;
+
+public class DDALineDrawing extends JPanel {
+
+    public void paint(Graphics g) {
+        super.paint(g);
+        drawDDA(g, 50, 100, 250, 200);
+    }
+
+    public void drawDDA(Graphics g, int x1, int y1,
+                        int x2, int y2) {
+
+        int dx = x2 - x1;
+        int dy = y2 - y1;
+
+        int steps = Math.max(Math.abs(dx), Math.abs(dy));
+
+        float xInc = (float) dx / steps;
+        float yInc = (float) dy / steps;
+
+        float x = x1;
+        float y = y1;
+
+        for (int i = 0; i <= steps; i++) {
+            g.fillRect(Math.round(x), Math.round(y), 2, 2);
+            x += xInc;
+            y += yInc;
+        }
+    }
+
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("DDA Line Drawing");
+        frame.add(new DDALineDrawing());
+        frame.setSize(500, 500);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+}
+
+2. Bresenham Line Drawing Algorithm
+
+
+import java.awt.*;
+import javax.swing.*;
+
+public class BresenhamLineDrawing extends JPanel {
+
+    public void paint(Graphics g) {
+        super.paint(g);
+        drawBresenhamLine(g, 50, 100, 250, 200);
+    }
+
+    public void drawBresenhamLine(Graphics g, int x1, int y1,
+                                  int x2, int y2) {
+
+        int dx = Math.abs(x2 - x1);
+        int dy = Math.abs(y2 - y1);
+
+        int sx = (x1 < x2) ? 1 : -1;
+        int sy = (y1 < y2) ? 1 : -1;
+
+        int err = dx - dy;
+
+        while (true) {
+            g.fillRect(x1, y1, 2, 2);
+
+            if (x1 == x2 && y1 == y2)
+                break;
+
+            int e2 = 2 * err;
+
+            if (e2 > -dy) {
+                err -= dy;
+                x1 += sx;
+            }
+
+            if (e2 < dx) {
+                err += dx;
+                y1 += sy;
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("Bresenham Line Drawing");
+        frame.add(new BresenhamLineDrawing());
+        frame.setSize(500, 500);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+}
+
+
+3. Bresenham Circle Drawing Algorithm
+
+
+import java.awt.*;
+import javax.swing.*;
+
+public class BresenhamCircleDrawing extends JPanel {
+
+    public void paint(Graphics g) {
+        super.paint(g);
+        drawCircle(g, 200, 200, 100);
+    }
+
+    public void drawCircle(Graphics g, int xc, int yc, int r) {
+        int x = 0;
+        int y = r;
+        int p = 3 - 2 * r;
+
+        while (x <= y) {
+            plotPoints(g, xc, yc, x, y);
+
+            if (p < 0) {
+                p = p + 4 * x + 6;
+            } else {
+                p = p + 4 * (x - y) + 10;
+                y--;
+            }
+
+            x++;
+        }
+    }
+
+    public void plotPoints(Graphics g, int xc, int yc,
+                           int x, int y) {
+        g.fillRect(xc + x, yc + y, 2, 2);
+        g.fillRect(xc - x, yc + y, 2, 2);
+        g.fillRect(xc + x, yc - y, 2, 2);
+        g.fillRect(xc - x, yc - y, 2, 2);
+
+        g.fillRect(xc + y, yc + x, 2, 2);
+        g.fillRect(xc - y, yc + x, 2, 2);
+        g.fillRect(xc + y, yc - x, 2, 2);
+        g.fillRect(xc - y, yc - x, 2, 2);
+    }
+
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("Bresenham Circle Drawing");
+        frame.add(new BresenhamCircleDrawing());
+        frame.setSize(500, 500);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+}
+
+
+4. Boundary Fill Algorithm (4-connected)
+
+
+import java.awt.*;
+import javax.swing.*;
+
+public class BoundaryFill extends JPanel {
+
+    public void paint(Graphics g) {
+        super.paint(g);
+
+        g.setColor(Color.BLACK);
+        g.drawRect(100, 100, 200, 200);
+
+        boundaryFill(g, 150, 150,
+                     Color.RED.getRGB(),
+                     Color.BLACK.getRGB());
+    }
+
+    public void boundaryFill(Graphics g, int x, int y,
+                             int fillColor, int boundaryColor) {
+
+        if (x < 0 || y < 0 ||
+            x >= getWidth() || y >= getHeight()) {
+            return;
+        }
+
+        Color current = new Color(
+            g.getColor().getRGB(), true);
+
+        // Read the pixel color from the drawing surface.
+        // This version uses the panel's pixel buffer instead.
+    }
+
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("Boundary Fill");
+        frame.add(new BoundaryFill());
+        frame.setSize(500, 500);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+}
+
+
+//
+
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import javax.swing.*;
+
+public class BoundaryFill extends JPanel {
+
+    BufferedImage image;
+
+    public BoundaryFill() {
+        image = new BufferedImage(
+            500, 500, BufferedImage.TYPE_INT_RGB);
+
+        Graphics g = image.getGraphics();
+        g.setColor(Color.WHITE);
+        g.fillRect(0, 0, 500, 500);
+
+        g.setColor(Color.BLACK);
+        g.drawRect(100, 100, 200, 200);
+        g.dispose();
+
+        boundaryFill(150, 150,
+                     Color.RED.getRGB(),
+                     Color.BLACK.getRGB());
+    }
+
+    public void boundaryFill(int x, int y,
+                             int fillColor, int boundaryColor) {
+
+        if (x < 0 || y < 0 ||
+            x >= image.getWidth() || y >= image.getHeight())
+            return;
+
+        int currentColor = image.getRGB(x, y);
+
+        if (currentColor != boundaryColor &&
+            currentColor != fillColor) {
+
+            image.setRGB(x, y, fillColor);
+
+            boundaryFill(x + 1, y, fillColor, boundaryColor);
+            boundaryFill(x - 1, y, fillColor, boundaryColor);
+            boundaryFill(x, y + 1, fillColor, boundaryColor);
+            boundaryFill(x, y - 1, fillColor, boundaryColor);
+        }
+    }
+
+    public void paint(Graphics g) {
+        super.paint(g);
+        g.drawImage(image, 0, 0, this);
+    }
+
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("Boundary Fill Algorithm");
+        frame.add(new BoundaryFill());
+        frame.setSize(500, 500);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+}
+
+
+5. Line Clipping Algorithm (Cohen–Sutherland)
+
+
+import java.awt.*;
+import javax.swing.*;
+
+public class LineClipping extends JPanel {
+
+    final int LEFT = 1;
+    final int RIGHT = 2;
+    final int BOTTOM = 4;
+    final int TOP = 8;
+
+    int xmin = 100, ymin = 100;
+    int xmax = 300, ymax = 300;
+
+    public void paint(Graphics g) {
+        super.paint(g);
+
+        // Clipping window
+        g.setColor(Color.BLACK);
+        g.drawRect(xmin, ymin, xmax - xmin, ymax - ymin);
+
+        // Original line
+        g.setColor(Color.LIGHT_GRAY);
+        g.drawLine(50, 150, 350, 250);
+
+        // Clipped line
+        g.setColor(Color.BLUE);
+        clipLine(g, 50, 150, 350, 250);
+    }
+
+    public int getCode(double x, double y) {
+        int code = 0;
+
+        if (x < xmin) code |= LEFT;
+        else if (x > xmax) code |= RIGHT;
+
+        if (y < ymin) code |= TOP;
+        else if (y > ymax) code |= BOTTOM;
+
+        return code;
+    }
+
+    public void clipLine(Graphics g, double x1, double y1,
+                         double x2, double y2) {
+
+        int c1 = getCode(x1, y1);
+        int c2 = getCode(x2, y2);
+        boolean accept = false;
+
+        while (true) {
+            if ((c1 | c2) == 0) {
+                accept = true;
+                break;
+            } else if ((c1 & c2) != 0) {
+                break;
+            } else {
+                int code = (c1 != 0) ? c1 : c2;
+                double x = 0, y = 0;
+
+                if ((code & TOP) != 0) {
+                    x = x1 + (x2 - x1) *
+                        (ymin - y1) / (y2 - y1);
+                    y = ymin;
+                } else if ((code & BOTTOM) != 0) {
+                    x = x1 + (x2 - x1) *
+                        (ymax - y1) / (y2 - y1);
+                    y = ymax;
+                } else if ((code & RIGHT) != 0) {
+                    y = y1 + (y2 - y1) *
+                        (xmax - x1) / (x2 - x1);
+                    x = xmax;
+                } else if ((code & LEFT) != 0) {
+                    y = y1 + (y2 - y1) *
+                        (xmin - x1) / (x2 - x1);
+                    x = xmin;
+                }
+
+                if (code == c1) {
+                    x1 = x;
+                    y1 = y;
+                    c1 = getCode(x1, y1);
+                } else {
+                    x2 = x;
+                    y2 = y;
+                    c2 = getCode(x2, y2);
+                }
+            }
+        }
+
+        if (accept) {
+            g.drawLine((int) Math.round(x1),
+                       (int) Math.round(y1),
+                       (int) Math.round(x2),
+                       (int) Math.round(y2));
+        }
+    }
+
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("Cohen-Sutherland Clipping");
+        frame.add(new LineClipping());
+        frame.setSize(500, 500);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+}
